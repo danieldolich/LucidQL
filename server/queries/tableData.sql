@@ -1,5 +1,5 @@
-SELECT json_object_agg(   ----------> 
-  pk.table_name, json_build_object(
+SELECT json_object_agg(   ----------> creates a json object; accepts 2 args; 1st is key, 2nd is value
+  pk.table_name, json_build_object( --------> creates a json object; accepts variable # args; matches up key, then value as pair 
     'primaryKey', pk.primary_key,
     'foreignKeys', fk.foreign_keys,
     'referencedBy', rd.referenced_by,
@@ -8,10 +8,11 @@ SELECT json_object_agg(   ---------->
 ) AS tables
 
 FROM (                                            --  Primary key data (pk)
+
 ---------------------------------------------------------------------------
-  SELECT  conrelid::regclass AS table_name, -- regclass will turn conrelid to actual tale name
+  SELECT  conrelid::regclass AS table_name, -- regclass will turn conrelid to actual table name
           substring(pg_get_constraintdef(oid), '\((.*?)\)')  AS primary_key --(.*?) matches any character (except for line terminators))
-  FROM pg_constraint
+  FROM pg_constraint  ---- The catalog pg_constraint stores check, primary key, unique, and foreign key constraints on tables -- https://www.postgresql.org/docs/8.2/catalog-pg-constraint.html
   WHERE  contype = 'p' AND connamespace = 'public'::regnamespace -- regnamespace will turn connamespace(number) to actual name space
 ---------------------------------------------------------------------------
 ) AS pk
@@ -57,7 +58,7 @@ LEFT OUTER JOIN (                                   -- Table data (td)
 
   -- Table names
   FROM (
-    SELECT table_name FROM information_schema.tables
+    SELECT table_name FROM information_schema.tables  --------- built-in; lists of all the tables in a selected database --- https://www.sqlshack.com/learn-sql-the-information_schema-database/
     WHERE table_type='BASE TABLE' AND table_schema='public'
   ) AS tab
 
