@@ -7,7 +7,11 @@ const { singular } = require('pluralize');
 const { toCamelCase, toPascalCase } = require('../helpers/helperFunctions');
 
 const ResolverGenerator = {
-  _values: {},
+  _values: {
+    1: 'title',
+    2: 'primary_author',
+    3: 'author_id',
+  },
 };
 
 ResolverGenerator.reset = function () {
@@ -36,18 +40,23 @@ ResolverGenerator.getRelationships = function getRelationships(tableName, tables
   let relationships = `\n  ${toPascalCase(singular(tableName))}: {\n`;
   for (const refTableName in referencedBy) {
     const { referencedBy: foreignRefBy, foreignKeys: foreignFKeys, columns: foreignColumns } = tables[refTableName];
-    const refTableType = toPascalCase(singular(refTableName));
+    const refTableType = toPascalCase(singular(refTableName)); // Author
     // One-to-one
     if (foreignRefBy && foreignRefBy[tableName]) relationships += this._oneToOne(tableName, primaryKey, refTableName, referencedBy[refTableName]);
     // One-to-many
     else if (Object.keys(foreignColumns).length !== Object.keys(foreignFKeys).length + 1) relationships += this._oneToMany(tableName, primaryKey, refTableName, referencedBy[refTableName]);
     // Many-to-many
+    /* 
+      ---------------------------- TEST FOR ONE-TO-ONE && ONE-TO-MANY & JOIN-TABLE ------------------------------------
+    */
+    else {
+    
     for (const foreignFKey in foreignFKeys) {
       if (tableName !== foreignFKeys[foreignFKey].referenceTable) {
         // Do not include original table in output
-        const manyToManyTable = foreignFKeys[foreignFKey].referenceTable;
-        const refKey = tables[tableName].referencedBy[refTableName];
-        const manyRefKey = tables[manyToManyTable].referencedBy[refTableName];
+        const manyToManyTable = foreignFKeys[foreignFKey].referenceTable; // theoretically a join table
+        const refKey = tables[tableName].referencedBy[refTableName]; // author_id
+        const manyRefKey = tables[manyToManyTable].referencedBy[refTableName]; // gives you the key from the join table 
         const { primaryKey: manyPrimaryKey } = tables[manyToManyTable];
 
         relationships += this._manyToMany(tableName, primaryKey, refTableName, refKey, manyRefKey, manyToManyTable, manyPrimaryKey);
@@ -62,6 +71,7 @@ ResolverGenerator.getRelationships = function getRelationships(tableName, tables
       if (!relationships.includes(newQuery)) relationships += newQuery 
     }
   }
+}
   relationships += '  },\n';
   return relationships;
 };

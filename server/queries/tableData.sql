@@ -1,4 +1,4 @@
-SELECT json_object_agg(
+SELECT json_object_agg(   ----------> 
   pk.table_name, json_build_object(
     'primaryKey', pk.primary_key,
     'foreignKeys', fk.foreign_keys,

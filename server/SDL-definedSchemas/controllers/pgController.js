@@ -15,6 +15,7 @@ pgController.getPGTables = (req, res, next) => {
   db.query(pgQuery)
     .then((data) => {
       res.locals.tables = data.rows[0].tables;
+      // console.log('SQL data from query----->', res.locals.tables);
       return next();
     })
     .catch((err) => res.json('error'));
@@ -26,6 +27,7 @@ pgController.getPGTables = (req, res, next) => {
 pgController.assembleSDLSchema = (req, res, next) => {
   try {
     res.locals.SDLSchema = SchemaGenerator.assembleSchema(res.locals.tables);
+    // console.log('SDL Schema---->', res.locals.SDLSchema);
     return next();
   } catch (err) {
     return next({
@@ -84,6 +86,7 @@ pgController.compileData = (req, res, next) => {
       }
     }
     res.locals.d3Data = newTables;
+    // console.log('D3 data ---->', res.locals.d3Data);
     return next();
   } catch (err) {
     return next({

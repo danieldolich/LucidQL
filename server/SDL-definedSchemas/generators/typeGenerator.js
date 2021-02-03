@@ -68,14 +68,19 @@ TypeGenerator._getRelationships = function getRelationships(tableName, tables) {
     // example2 (when table name is : species): refTableName: people, species_in_films
     // example3 (when table name is : planets:): refTableName: planets_in_films, species, people
     const { referencedBy: foreignRefBy, foreignKeys: foreignFKeys, columns: foreignColumns } = tables[refTableName];
+    // console.log('foreign ref by', foreignRefBy);
+    // if (foreignRefBy) console.log('refbytablename', foreignRefBy[tableName]);
+
 
     // One-to-one: when we can find tableName in foreignRefBy, that means this is a direct one to one relation
     if (foreignRefBy && foreignRefBy[tableName]) {
+      // console.log('INSIDE IF BLOCK!!!!')
       if (!alreadyAddedType.includes(refTableName)) {
         // check if this refTableType has already been added by other tableName
+        // console.log(`was not already added to table, pushing ${refTableName}`)
         alreadyAddedType.push(refTableName);
         const refTableType = toPascalCase(singular(refTableName));
-        relationships += `\n    ${toCamelCase(singular(reftableName))}: ${refTableType}`;
+        relationships += `\n    ${toCamelCase(singular(refTableName))}: ${refTableType}`;
       }
     }
 
@@ -99,6 +104,7 @@ TypeGenerator._getRelationships = function getRelationships(tableName, tables) {
       if (tableName !== foreignFKeys[foreignFKey].referenceTable) {
         // Do not include original table in output
         if (!alreadyAddedType.includes(refTableName)) {
+          console.log('inside FK loop......already added:', alreadyAddedType)
           // check if this refTableType has already been added by other tableName
           alreadyAddedType.push(refTableName);
           const manyToManyTable = toCamelCase(foreignFKeys[foreignFKey].referenceTable);
@@ -107,10 +113,12 @@ TypeGenerator._getRelationships = function getRelationships(tableName, tables) {
       }
     }
   }
+  // ---------------- CHECK LOGIC--------------------------- //
   for (const FKTableName in tables[tableName].foreignKeys) {
     const object = tables[tableName].foreignKeys[FKTableName];
     const refTableName = object.referenceTable;
     if (refTableName) {
+      console.log('inside refTableName loop')
       const refTableType = toPascalCase(singular(refTableName));
       relationships += `\n    ${toCamelCase(refTableName)}: [${refTableType}]`;
     }
