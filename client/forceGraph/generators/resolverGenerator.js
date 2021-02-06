@@ -34,23 +34,26 @@ ResolverGenerator.getRelationships = function getRelationships(tableName, tables
   const { primaryKey, referencedBy } = tables[tableName];
   if (!referencedBy) return '';
   let relationships = `\n  ${toPascalCase(singular(tableName))}: {\n`;
-  for (const refTableName in referencedBy) {
+  for (const refTableName in referencedBy) { // iterating through the referencedBy objects of the current table
     const {
       referencedBy: foreignRefBy,
       foreignKeys: foreignFKeys,
       columns: foreignColumns,
-    } = tables[refTableName];
-    const refTableType = toPascalCase(singular(refTableName));
+    } = tables[refTableName]; // finds the current referencedBy table within the full list of tables and deconstructs
+    // const refTableType = toPascalCase(singular(refTableName)); <-- doesn't use this code
+
     // One-to-one
-    if (foreignRefBy && foreignRefBy[tableName])
+    if (foreignRefBy && foreignRefBy[tableName]) // checking if entire list of referencedBy objects for the current ref-table in iteration
+     // then checks if it includes the currentTable name 
       relationships += this._oneToOne(
-        tableName,
-        primaryKey,
-        refTableName,
-        referencedBy[refTableName]
+        tableName, // current table name
+        primaryKey, // current table primary key
+        refTableName, // referencing table name
+        referencedBy[refTableName] // grabs the foreign key from the referencing table 
       );
+
     // One-to-many
-    else if (Object.keys(foreignColumns).length !== Object.keys(foreignFKeys).length + 1)
+    else if (Object.keys(foreignColumns).length !== Object.keys(foreignFKeys).length + 1) // not a join table function 
       relationships += this._oneToMany(
         tableName,
         primaryKey,
@@ -58,13 +61,13 @@ ResolverGenerator.getRelationships = function getRelationships(tableName, tables
         referencedBy[refTableName]
       );
     // Many-to-many
-    for (const foreignFKey in foreignFKeys) {
-      if (tableName !== foreignFKeys[foreignFKey].referenceTable) {
+    for (const foreignFKey in foreignFKeys) { // iterating through the foreign keys of the refTable
+      if (tableName !== foreignFKeys[foreignFKey].referenceTable) { // checking if currentTable does NOT equal the reference table of the foreign key 
         // Do not include original table in output
-        const manyToManyTable = foreignFKeys[foreignFKey].referenceTable;
-        const refKey = tables[tableName].referencedBy[refTableName];
-        const manyRefKey = tables[manyToManyTable].referencedBy[refTableName];
-        const { primaryKey: manyPrimaryKey } = tables[manyToManyTable];
+        const manyToManyTable = foreignFKeys[foreignFKey].referenceTable; // name of table that the foreign key is referencing
+        const refKey = tables[tableName].referencedBy[refTableName]; // foreign key from the current table that references the refTable
+        const manyRefKey = tables[manyToManyTable].referencedBy[refTableName]; // grabbing the foreign key from the refTable
+        const { primaryKey: manyPrimaryKey } = tables[manyToManyTable]; // grabbing the primary key from the many to many table
 
         relationships += this._manyToMany(
           tableName,

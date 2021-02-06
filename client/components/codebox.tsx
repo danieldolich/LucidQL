@@ -8,7 +8,8 @@ import { useRecoilValue } from 'recoil';
 
 const CodeBox: React.FC = () => {
   const data = useRecoilValue(state);
-
+  console.log('data.schema--->', data.schema);
+  console.log(typeof data.schema);
   return (
     <div className="wholeCodeBox">
       <CodeMirror

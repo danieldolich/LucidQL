@@ -21,6 +21,7 @@ const LinkContainer: React.FC = () => {
     })
       .then((response) => response.json())
       .then((response) => {
+        console.log(response.schema)
         setData({ ...data, link: link, modal: false, schema: response.schema, tables: response.tables });
       });
   };

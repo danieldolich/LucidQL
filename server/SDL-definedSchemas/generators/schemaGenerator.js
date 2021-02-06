@@ -24,6 +24,7 @@ SchemaGenerator.assembleSchema = function assembleSchema(tables) {
       relationshipResolvers += ResolverGenerator.getRelationships(tableName, tables);
     }
   }
+
   return (
     `${'const typeDefs = `\n' + '  type Query {\n'}${queryType}  }\n\n` +
     `  type Mutation {${mutationType}  }\n\n` +

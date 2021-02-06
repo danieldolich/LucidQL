@@ -27,7 +27,8 @@ pgController.getPGTables = (req, res, next) => {
 pgController.assembleSDLSchema = (req, res, next) => {
   try {
     res.locals.SDLSchema = SchemaGenerator.assembleSchema(res.locals.tables);
-    // console.log('SDL Schema---->', res.locals.SDLSchema);
+    console.log('SDL Schema---->', res.locals.SDLSchema);
+    console.log(typeof res.locals.SDLSchema)
     return next();
   } catch (err) {
     return next({
